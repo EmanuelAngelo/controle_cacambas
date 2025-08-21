@@ -1,11 +1,19 @@
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.authtoken.views import obtain_auth_token # Importe a view
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('cacambas.urls')),
-    
-    # Adicione esta linha para criar o endpoint de login
-    path('api/login/', obtain_auth_token, name='api_token_auth'),
+    path("admin/", admin.site.urls),
+
+    # Auth (JWT)
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+
+    # Documentação
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
+
+    # App
+    path("", include("cacambas.urls")),  # inclui as rotas do app já versionadas
 ]

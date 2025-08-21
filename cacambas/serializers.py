@@ -1,37 +1,54 @@
-# Em cacambas/serializers.py
-
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
 from .models import Produto, Veiculo, Movimentacao
-from django.contrib.auth.models import User
+
+User = get_user_model()
 
 class ProdutoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Produto
-        fields = '__all__' # Inclui todos os campos do modelo
+        fields = ["id", "nome", "esta_ativo"]
+
 
 class VeiculoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Veiculo
-        fields = '__all__'
+        fields = ["id", "numero_interno", "placa", "capacidade", "tipo", "marca", "esta_ativo"]
 
-# Serializer para LISTAR as movimentações, mostrando dados legíveis
+
+# Serializers de leitura x escrita para Movimentacao
 class MovimentacaoListSerializer(serializers.ModelSerializer):
-    # Usando StringRelatedField para mostrar o __str__ do modelo relacionado
-    veiculo = serializers.StringRelatedField()
-    produto = serializers.StringRelatedField()
-    # Usando ReadOnlyField para pegar um campo específico do modelo relacionado
-    operador = serializers.ReadOnlyField(source='operador.username')
+    veiculo = serializers.CharField(source="veiculo.placa", read_only=True)
+    numero_interno = serializers.CharField(source="veiculo.numero_interno", read_only=True)
+    produto = serializers.CharField(source="produto.nome", read_only=True)
+    operador = serializers.CharField(source="operador.username", read_only=True)
 
     class Meta:
         model = Movimentacao
-        fields = ['id', 'veiculo', 'produto', 'operador', 'quantidade', 'data_hora_saida', 'status']
+        fields = [
+            "id",
+            "veiculo",
+            "numero_interno",
+            "produto",
+            "quantidade",
+            "status",
+            "operador",
+            "data_hora_saida",
+        ]
 
-# Serializer para CRIAR uma nova movimentação, aceitando os IDs dos objetos
+
 class MovimentacaoCreateSerializer(serializers.ModelSerializer):
-    # Garante que o operador seja o usuário logado, e não um campo a ser enviado
     operador = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Movimentacao
-        # Excluímos os campos que serão preenchidos automaticamente
-        fields = ['veiculo', 'produto', 'quantidade', 'operador']
+        fields = ["id", "veiculo", "produto", "quantidade", "operador"]
+
+    def validate(self, data):
+        veiculo = data["veiculo"]
+        qtd = data.get("quantidade")
+        if qtd is None:
+            data["quantidade"] = veiculo.capacidade
+        if data["quantidade"] <= 0:
+            raise serializers.ValidationError({"quantidade": "Quantidade deve ser positiva."})
+        return data
