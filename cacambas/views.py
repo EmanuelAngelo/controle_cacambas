@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import permissions, views
 from rest_framework import status
 from django.utils.timezone import now
 
@@ -12,11 +13,18 @@ from .serializers import (
     ProdutoSerializer,
     VeiculoSerializer,
     MovimentacaoListSerializer,
-    MovimentacaoCreateSerializer,
+    MovimentacaoCreateSerializer, UserSerializer,
 )
 from .permissions import IsAdmin, IsAuthenticatedAny
 from .filters import MovimentacaoFilter
 
+
+class MeView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
 class ProdutoViewSet(ModelViewSet):
     queryset = Produto.class_.objects if hasattr(Produto, "class_") else Produto.objects  # proteção caso IDE marque

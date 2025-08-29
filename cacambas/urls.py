@@ -1,16 +1,29 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProdutoViewSet, VeiculoViewSet, MovimentacaoViewSet
-from .views_relatorios import RelatorioMovimentacoes
-from .views_admin import VeiculoImportCSV
+from .views import (
+    MeView,
+    ProdutoViewSet,
+    VeiculoViewSet,
+    MovimentacaoViewSet
+)
 
+# 1. Cria uma instância do roteador
 router = DefaultRouter()
-router.register("produtos", ProdutoViewSet, basename="produtos")
-router.register("veiculos", VeiculoViewSet, basename="veiculos")
-router.register("movimentacoes", MovimentacaoViewSet, basename="movimentacoes")
 
+# 2. Registra os ViewSets com o roteador
+# Esta linha cria as rotas para /veiculos/ (GET, POST) e /veiculos/{id}/ (GET, PUT, DELETE)
+router.register(r'veiculos', VeiculoViewSet, basename='veiculo')
+
+# (Opcional, mas recomendado) Registre seus outros ViewSets aqui também
+router.register(r'produtos', ProdutoViewSet, basename='produto')
+router.register(r'movimentacoes', MovimentacaoViewSet, basename='movimentacao')
+
+
+# 3. Define os padrões de URL para o app
 urlpatterns = [
-    path("api/v1/", include(router.urls)),
-    path("api/v1/relatorios/movimentacoes/", RelatorioMovimentacoes.as_view()),
-    path("api/v1/veiculos/import-csv/", VeiculoImportCSV.as_view()),
+    # Rota para buscar o usuário logado
+    path('me/', MeView.as_view(), name='me'),
+    
+    # Inclui todas as URLs geradas automaticamente pelo roteador
+    path('', include(router.urls)),
 ]

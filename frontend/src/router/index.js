@@ -1,36 +1,63 @@
-/**
- * router/index.ts
- *
- * Automatic routes for `./src/pages/*.vue`
- */
+import { createRouter, createWebHistory } from "vue-router";
+import LoginView from "../views/LoginView.vue";
+import TelaPrincipal from "../views/TelaPrincipal.vue";
 
-// Composables
-import { createRouter, createWebHistory } from 'vue-router/auto'
-import { setupLayouts } from 'virtual:generated-layouts'
-import { routes } from 'vue-router/auto-routes'
+// --- Importe as novas views que ficarão DENTRO da TelaPrincipal ---
+import HomeView from "../views/HomeView.vue"; // Uma tela inicial padrão
+import VeiculosView from "../views/VeiculosView.vue"; // A tela de CRUD de veículos
+
+const routes = [
+  {
+    path: "/login",
+    name: "Login",
+    component: LoginView,
+  },
+  {
+    // --- Esta rota se torna o "Layout" principal da aplicação ---
+    path: "/",
+    component: TelaPrincipal,
+    meta: { requiresAuth: true }, // A proteção fica na rota pai
+    children: [
+      {
+        // Rota padrão (página inicial) dentro do layout
+        // Será exibida quando você acessar a raiz "/"
+        path: "",
+        name: "Home",
+        component: HomeView,
+      },
+      {
+        // Rota para a tela de Veículos
+        // Acessível em "/veiculos"
+        path: "veiculos",
+        name: "Veiculos",
+        component: VeiculosView,
+      },
+      //
+      // SUAS FUTURAS ROTAS (Produtos, Movimentações, etc.) ENTRARÃO AQUI
+      //
+    ],
+  },
+];
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: setupLayouts(routes),
-})
+  history: createWebHistory(process.env.BASE_URL),
+  routes,
+});
 
-// Workaround for https://github.com/vitejs/vite/issues/11804
-router.onError((err, to) => {
-  if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
-    if (localStorage.getItem('vuetify:dynamic-reload')) {
-      console.error('Dynamic import error, reloading page did not fix it', err)
-    } else {
-      console.log('Reloading page to fix dynamic import error')
-      localStorage.setItem('vuetify:dynamic-reload', 'true')
-      location.assign(to.fullPath)
-    }
-  } else {
-    console.error(err)
+// "Guarda de Navegação" para proteger as rotas
+router.beforeEach((to, from, next) => {
+  const loggedIn = localStorage.getItem("accessToken");
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+
+  if (requiresAuth && !loggedIn) {
+    next("/login");
   }
-})
+  // ATENÇÃO: Mudança aqui para redirecionar para a rota raiz "/"
+  else if (to.path === "/login" && loggedIn) {
+    next("/");
+  } else {
+    next();
+  }
+});
 
-router.isReady().then(() => {
-  localStorage.removeItem('vuetify:dynamic-reload')
-})
-
-export default router
+export default router;
