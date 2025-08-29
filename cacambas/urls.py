@@ -4,7 +4,8 @@ from .views import (
     MeView,
     ProdutoViewSet,
     VeiculoViewSet,
-    MovimentacaoViewSet
+    MovimentacaoViewSet,
+    UserViewSet
 )
 
 # 1. Cria uma instância do roteador
@@ -13,10 +14,10 @@ router = DefaultRouter()
 # 2. Registra os ViewSets com o roteador
 # Esta linha cria as rotas para /veiculos/ (GET, POST) e /veiculos/{id}/ (GET, PUT, DELETE)
 router.register(r'veiculos', VeiculoViewSet, basename='veiculo')
-
 # (Opcional, mas recomendado) Registre seus outros ViewSets aqui também
 router.register(r'produtos', ProdutoViewSet, basename='produto')
 router.register(r'movimentacoes', MovimentacaoViewSet, basename='movimentacao')
+router.register(r'usuarios', UserViewSet, basename='usuario')
 
 
 # 3. Define os padrões de URL para o app

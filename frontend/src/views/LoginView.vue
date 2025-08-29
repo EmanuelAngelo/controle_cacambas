@@ -68,7 +68,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import axios from "@/api/axios.js";
 
 const form = ref(null);
 const username = ref("");
@@ -92,7 +92,8 @@ const handleLogin = async () => {
   errorMessage.value = "";
 
   try {
-    const response = await axios.post("http://127.0.0.1:8000/api/token/", {
+    const response = await axios.post("/token/", {
+      // URL agora é relativa
       username: username.value,
       password: password.value,
     });
@@ -100,23 +101,29 @@ const handleLogin = async () => {
     if (response.data.access) {
       localStorage.setItem("accessToken", response.data.access);
       localStorage.setItem("refreshToken", response.data.refresh);
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.access}`;
 
-      // --- NOVA PARTE: BUSCAR DADOS DO USUÁRIO ---
-      const userResponse = await axios.get("http://127.0.0.1:8000/api/me/");
-      // Salva o nome do usuário (ou o objeto inteiro) no localStorage
+      // --- MUDANÇA 2: Esta linha não é mais necessária! ---
+      // O interceptor em 'axios.js' já cuida disso automaticamente
+      // axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
+
+      const userResponse = await axios.get("/me/"); // URL agora é relativa
       localStorage.setItem(
         "userName",
         userResponse.data.first_name || userResponse.data.username
       );
-      // --- FIM DA NOVA PARTE ---
+      localStorage.setItem("isStaff", userResponse.data.is_staff);
 
-      router.push("/"); // Redireciona para a rota raiz que leva à TelaPrincipal
+      router.push("/");
     }
   } catch (error) {
-    // ... (tratamento de erro continua o mesmo)
+    if (
+      error.response &&
+      (error.response.status === 400 || error.response.status === 401)
+    ) {
+      errorMessage.value = "Usuário ou senha inválidos.";
+    } else {
+      errorMessage.value = "Ocorreu um erro de conexão.";
+    }
   } finally {
     loading.value = false;
   }

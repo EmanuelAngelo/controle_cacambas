@@ -1,15 +1,18 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import permissions, views
+from rest_framework import permissions, views, status
+from django.db.models import ProtectedError
 from rest_framework import status
 from django.utils.timezone import now
 
 from rest_framework import filters as drf_filters
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 
-from .models import Produto, Veiculo, Movimentacao
+from .models import Produto, Veiculo, Movimentacao, User
 from .serializers import (
+    MovimentacaoStatusSerializer,
     ProdutoSerializer,
     VeiculoSerializer,
     MovimentacaoListSerializer,
@@ -50,9 +53,9 @@ class ProdutoViewSet(ModelViewSet):
 
 
 class VeiculoViewSet(ModelViewSet):
-    queryset = Veiculo.objects.all()
+    queryset = Veiculo.objects.all().order_by('placa')
     serializer_class = VeiculoSerializer
-    permission_classes = [IsAuthenticatedAny]
+    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, drf_filters.OrderingFilter, drf_filters.SearchFilter]
     search_fields = ["placa", "numero_interno", "marca", "tipo"]
     ordering_fields = ["placa", "capacidade", "id"]
@@ -69,6 +72,18 @@ class VeiculoViewSet(ModelViewSet):
         obj.esta_ativo = not obj.esta_ativo
         obj.save(update_fields=["esta_ativo"])
         return Response({"id": obj.id, "esta_ativo": obj.esta_ativo})
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProtectedError as e:
+            # Constrói uma mensagem de erro clara
+            error_message = {
+                "detail": "Este veículo não pode ser excluído, pois está associado a uma ou mais movimentações."
+            }
+            return Response(error_message, status=status.HTTP_409_CONFLICT)
 
 
 class MovimentacaoViewSet(ModelViewSet):
@@ -85,10 +100,28 @@ class MovimentacaoViewSet(ModelViewSet):
             qs = qs.filter(operador=self.request.user)
         return qs
 
+    def perform_create(self, serializer):
+        """
+        Define o operador automaticamente com base no usuário logado,
+        a menos que o usuário seja um admin e tenha especificado um operador.
+        """
+        operador_enviado = serializer.validated_data.get('operador')
+        
+        # Se um operador foi enviado E o usuário logado é um admin, use o operador enviado.
+        if operador_enviado and self.request.user.is_staff:
+            serializer.save(operador=operador_enviado)
+        else:
+            # Em todos os outros casos, usa o próprio usuário logado como operador.
+            serializer.save(operador=self.request.user)
+    
     def get_serializer_class(self):
-        if self.action in ["list", "retrieve", "hoje"]:
-            return MovimentacaoListSerializer
-        return MovimentacaoCreateSerializer
+        if self.action == 'create':
+            return MovimentacaoCreateSerializer
+        # --- MUDANÇA AQUI ---
+        # Para 'update' ou 'partial_update', usamos o serializer de status
+        if self.action in ['update', 'partial_update']:
+            return MovimentacaoStatusSerializer
+        return MovimentacaoListSerializer
 
     @action(detail=False, methods=["get"])
     def hoje(self, request):
@@ -122,3 +155,14 @@ class MovimentacaoViewSet(ModelViewSet):
         mov.status = Movimentacao.Status.CONCLUIDO
         mov.save(update_fields=["status"])
         return Response({"id": mov.id, "status": mov.status})
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet para listar os usuários (operadores).
+    Apenas leitura (GET).
+    """
+    queryset = User.objects.all().order_by('username')
+    serializer_class = UserSerializer
+    # Apenas usuários autenticados que são administradores podem ver a lista
+    permission_classes = [permissions.IsAdminUser]

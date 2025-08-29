@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -34,20 +35,32 @@ class Veiculo(models.Model):
 
 
 class Movimentacao(models.Model):
+    # --- MUDANÇA AQUI: NOVOS STATUS ---
     class Status(models.TextChoices):
-        CONCLUIDO = "CONCLUIDO", "Concluído"
-        PENDENTE_CANCELAMENTO = "PENDENTE_CANCELAMENTO", "Pendente de Cancelamento"
-        CANCELADO = "CANCELADO", "Cancelado"
+        A_ENTREGAR = 'A ENTREGAR', 'A entregar'
+        EM_ROTA = 'EM ROTA', 'Em rota'
+        CONCLUIDO = 'CONCLUIDO', 'Concluído'
+        PENDENTE_CANCELAMENTO = 'PENDENTE', 'Pendente Cancelamento'
+        CANCELADO = 'CANCELADO', 'Cancelado'
 
-    veiculo = models.ForeignKey(Veiculo, on_delete=models.PROTECT, related_name="movimentacoes")
-    produto = models.ForeignKey(Produto, on_delete=models.PROTECT, related_name="movimentacoes")
-    operador = models.ForeignKey(User, on_delete=models.PROTECT, related_name="movimentacoes")
-    quantidade = models.DecimalField(max_digits=10, decimal_places=2)
-    data_hora_saida = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=30, choices=Status.choices, default=Status.CONCLUIDO)
+    veiculo = models.ForeignKey(Veiculo, on_delete=models.PROTECT, related_name='movimentacoes', verbose_name="Veículo")
+    produto = models.ForeignKey(Produto, on_delete=models.PROTECT, related_name='movimentacoes', verbose_name="Produto")
+    operador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='movimentacoes', verbose_name="Operador")
+    quantidade = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Quantidade (m³)")
+    data_hora_saida = models.DateTimeField(auto_now_add=True, verbose_name="Data e Hora da Saída")
+    
+    # --- MUDANÇA AQUI: NOVO STATUS PADRÃO ---
+    status = models.CharField(
+        max_length=20, 
+        choices=Status.choices, 
+        default=Status.A_ENTREGAR, # O padrão agora é 'A entregar'
+        verbose_name="Status"
+    )
 
     class Meta:
-        ordering = ["-data_hora_saida"]
+        verbose_name = "Movimentação"
+        verbose_name_plural = "Movimentações"
+        ordering = ['-data_hora_saida']
 
     def __str__(self):
-        return f"{self.veiculo} - {self.produto} - {self.quantidade}"
+        return f"Saída de {self.veiculo.placa} ({self.produto.nome}) em {self.data_hora_saida.strftime('%d/%m/%Y %H:%M')}"

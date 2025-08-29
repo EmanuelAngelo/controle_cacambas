@@ -43,12 +43,35 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="errorDialog" persistent max-width="500px">
+      <v-card>
+        <v-card-title class="text-h5 bg-red-darken-2">
+          <v-icon start icon="mdi-alert-circle-outline"></v-icon>
+          Operação Bloqueada
+        </v-card-title>
+        <v-card-text class="py-4 text-body-1">
+          {{ errorMessage }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="blue-darken-1"
+            variant="elevated"
+            @click="errorDialog = false"
+          >
+            Entendi
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
+// Recomendação: usar a instância configurada do Axios para garantir a autenticação
+import axios from "@/api/axios";
 import VeiculosList from "@/components/VeiculosList.vue";
 import VeiculosForm from "@/components/VeiculosForm.vue";
 
@@ -58,6 +81,10 @@ const dialog = ref(false);
 const deleteDialog = ref(false);
 const editedVehicle = ref({});
 const vehicleToDelete = ref(null);
+
+// ### NOVAS VARIÁVEIS ADICIONADAS ###
+const errorDialog = ref(false);
+const errorMessage = ref("");
 
 const defaultVehicle = {
   placa: "",
@@ -74,7 +101,8 @@ onMounted(() => {
 const fetchVehicles = async () => {
   loading.value = true;
   try {
-    const response = await axios.get("http://127.0.0.1:8000/api/veiculos/");
+    // A baseURL já está configurada no seu arquivo axios.js
+    const response = await axios.get("/veiculos/");
     vehicles.value = response.data.results;
   } catch (error) {
     console.error("Erro ao buscar veículos:", error);
@@ -92,13 +120,10 @@ const saveVehicle = async (vehicle) => {
   try {
     if (vehicle.id) {
       // Atualizar (PUT)
-      await axios.put(
-        `http://127.0.0.1:8000/api/veiculos/${vehicle.id}/`,
-        vehicle
-      );
+      await axios.put(`/veiculos/${vehicle.id}/`, vehicle);
     } else {
       // Criar (POST)
-      await axios.post("http://127.0.0.1:8000/api/veiculos/", vehicle);
+      await axios.post("/veiculos/", vehicle);
     }
     dialog.value = false;
     fetchVehicles(); // Atualiza a lista
@@ -112,14 +137,27 @@ const confirmDelete = (vehicle) => {
   deleteDialog.value = true;
 };
 
+// ### FUNÇÃO DE EXCLUSÃO ATUALIZADA ###
 const deleteVehicleConfirmed = async () => {
   try {
-    await axios.delete(
-      `http://127.0.0.1:8000/api/veiculos/${vehicleToDelete.value.id}/`
-    );
+    await axios.delete(`/veiculos/${vehicleToDelete.value.id}/`);
     deleteDialog.value = false;
-    fetchVehicles(); // Atualiza a lista
+    fetchVehicles(); // Atualiza a lista somente se a exclusão for bem-sucedida
   } catch (error) {
+    // Fecha o dialog de confirmação
+    deleteDialog.value = false;
+
+    // Verifica se o erro é o 409 Conflict que configuramos no backend
+    if (error.response && error.response.status === 409) {
+      // Pega a mensagem customizada do backend
+      errorMessage.value = error.response.data.detail;
+      errorDialog.value = true; // Abre o novo dialog de erro
+    } else {
+      // Para qualquer outro tipo de erro
+      errorMessage.value =
+        "Ocorreu um erro inesperado ao tentar excluir o veículo.";
+      errorDialog.value = true;
+    }
     console.error("Erro ao excluir veículo:", error);
   }
 };

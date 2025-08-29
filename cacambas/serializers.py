@@ -40,11 +40,15 @@ class MovimentacaoListSerializer(serializers.ModelSerializer):
 
 
 class MovimentacaoCreateSerializer(serializers.ModelSerializer):
-    operador = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    # Altere o campo 'operador'
+    # Ele agora espera um ID, mas não é obrigatório
+    operador = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), required=False
+    )
 
     class Meta:
         model = Movimentacao
-        fields = ["id", "veiculo", "produto", "quantidade", "operador"]
+        fields = ['veiculo', 'produto', 'quantidade', 'operador']
 
     def validate(self, data):
         veiculo = data["veiculo"]
@@ -59,4 +63,10 @@ class MovimentacaoCreateSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+        # Adicione 'is_staff' à lista de campos
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff']
+
+class MovimentacaoStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Movimentacao
+        fields = ['status']
