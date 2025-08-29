@@ -35,7 +35,7 @@ export default defineConfig({
         name: "Controle de Caçambas",
         short_name: "Caçambas",
         description: "Painel de Controle de Caçambas",
-        theme_color: "#111757",
+        theme_color: "#ffffff",
         background_color: "#ffffff",
         display: "standalone",
         start_url: "/",
