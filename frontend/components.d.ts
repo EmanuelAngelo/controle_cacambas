@@ -9,7 +9,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
-    HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     MovimentacoesForm: typeof import('./src/components/MovimentacoesForm.vue')['default']
     MovimentacoesList: typeof import('./src/components/MovimentacoesList.vue')['default']
     ProdutosForm: typeof import('./src/components/ProdutosForm.vue')['default']
