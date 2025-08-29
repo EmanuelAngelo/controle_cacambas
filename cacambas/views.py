@@ -122,6 +122,18 @@ class MovimentacaoViewSet(ModelViewSet):
         if self.action in ['update', 'partial_update']:
             return MovimentacaoStatusSerializer
         return MovimentacaoListSerializer
+    
+    def destroy(self, request, *args, **kwargs):
+        """
+        Sobrescreve o método DELETE. Em vez de deletar o objeto,
+        apenas altera o status para 'CANCELADO'.
+        """
+        instance = self.get_object()  # Pega a movimentação a ser "deletada"
+        instance.status = Movimentacao.Status.CANCELADO  # Muda o status
+        instance.save(update_fields=["status"])  # Salva a alteração no banco
+        
+        # Retorna uma resposta de sucesso sem conteúdo, como um DELETE normal faria
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=["get"])
     def hoje(self, request):

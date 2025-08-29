@@ -25,7 +25,7 @@
       <v-icon size="small" class="me-2" @click="$emit('edit', item)">
         mdi-pencil
       </v-icon>
-      <v-icon size="small" @click="$emit('delete', item)"> mdi-delete </v-icon>
+      <v-icon size="small" @click="$emit('delete', item)"> mdi-cancel </v-icon>
     </template>
   </v-data-table>
 </template>
