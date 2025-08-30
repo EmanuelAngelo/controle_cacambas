@@ -58,6 +58,7 @@ const headers = [
 const getStatusColor = (status) => {
   if (status === "CONCLUIDO") return "green";
   if (status === "CANCELADO") return "red";
+  if (status === "EM ROTA") return "yellow";
   return "orange";
 };
 

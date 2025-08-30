@@ -73,8 +73,6 @@
     </v-card-actions>
   </v-card>
 </template>
-
-// Em src/components/MovimentacoesForm.vue
 <script setup>
 import { ref, onMounted, computed, defineEmits } from "vue";
 import axios from "@/api/axios";
