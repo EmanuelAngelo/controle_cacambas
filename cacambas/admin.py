@@ -18,8 +18,8 @@ class VeiculoAdmin(admin.ModelAdmin):
 
 @admin.register(Movimentacao)
 class MovimentacaoAdmin(admin.ModelAdmin):
-    list_display = ("id", "veiculo", "produto", "quantidade", "status", "operador", "data_hora_saida")
-    list_filter = ("status", "produto", "veiculo__placa", "operador")
+    list_display = ("id", "veiculo", "produto", "quantidade", "status", "operador", "data_hora_saida", "valor_entrega")
+    list_filter = ("status", "produto", "veiculo__placa", "operador", "valor_entrega")
     search_fields = ("veiculo__placa", "produto__nome", "operador__username")
     date_hierarchy = "data_hora_saida"
     autocomplete_fields = ("veiculo", "produto", "operador")

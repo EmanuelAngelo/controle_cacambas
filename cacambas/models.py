@@ -45,6 +45,7 @@ class Movimentacao(models.Model):
 
     veiculo = models.ForeignKey(Veiculo, on_delete=models.PROTECT, related_name='movimentacoes', verbose_name="Veículo")
     produto = models.ForeignKey(Produto, on_delete=models.PROTECT, related_name='movimentacoes', verbose_name="Produto")
+    valor_entrega = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor da Entrega (R$)")
     operador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='movimentacoes', verbose_name="Operador")
     quantidade = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Quantidade (m³)")
     data_hora_saida = models.DateTimeField(auto_now_add=True, verbose_name="Data e Hora da Saída")

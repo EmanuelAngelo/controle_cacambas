@@ -24,6 +24,7 @@ class MovimentacaoListSerializer(serializers.ModelSerializer):
     numero_interno = serializers.CharField(source="veiculo.numero_interno", read_only=True)
     produto = serializers.CharField(source="produto.nome", read_only=True)
     operador = serializers.CharField(source="operador.username", read_only=True)
+    # valor_entrega = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Movimentacao
@@ -35,6 +36,7 @@ class MovimentacaoListSerializer(serializers.ModelSerializer):
             "quantidade",
             "status",
             "operador",
+            "valor_entrega",
             "data_hora_saida",
         ]
 
@@ -48,7 +50,7 @@ class MovimentacaoCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Movimentacao
-        fields = ['veiculo', 'produto', 'quantidade', 'operador']
+        fields = ['veiculo', 'produto', 'quantidade', 'operador', 'valor_entrega']
 
     def validate(self, data):
         veiculo = data["veiculo"]

@@ -92,7 +92,7 @@ class MovimentacaoViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, drf_filters.OrderingFilter, drf_filters.SearchFilter]
     filterset_class = MovimentacaoFilter
     ordering_fields = ["data_hora_saida", "quantidade"]
-    search_fields = ["veiculo__placa", "produto__nome", "operador__username"]
+    search_fields = ["veiculo__placa", "produto__nome", "operador__username", "valor_entrega"]
 
     def get_queryset(self):
         qs = super().get_queryset()

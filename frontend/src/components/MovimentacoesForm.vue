@@ -57,6 +57,17 @@
                 :rules="[rules.required]"
               ></v-text-field>
             </v-col>
+
+            <v-col cols="12">
+              <v-text-field
+                v-model="editedMovimentacao.valor_entrega"
+                label="Valor da Entrega (R$)"
+                type="number"
+                variant="outlined"
+                density="compact"
+                :rules="[rules.required]"
+              ></v-text-field>
+            </v-col>
           </v-row>
         </v-container>
       </v-form>
@@ -84,6 +95,7 @@ const editedMovimentacao = ref({});
 
 const veiculos = ref([]);
 const produtos = ref([]);
+const valor_entrega = ref([]);
 const operadores = ref([]);
 
 const isStaff = computed(() => localStorage.getItem("isStaff") === "true");

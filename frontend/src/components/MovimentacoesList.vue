@@ -11,6 +11,10 @@
       <v-skeleton-loader type="table-row@5"></v-skeleton-loader>
     </template>
 
+    <template v-slot:item.valor_entrega="{ item }">
+      <span>{{ formatCurrency(item.valor_entrega) }}</span>
+    </template>
+
     <template v-slot:item.status="{ value }">
       <v-chip :color="getStatusColor(value)" dark small>
         {{ value }}
@@ -48,6 +52,7 @@ defineEmits(["edit", "delete"]);
 const headers = [
   { title: "Veículo", key: "veiculo" },
   { title: "Produto", key: "produto" },
+  { title: "Valor Entrega", key: "valor_entrega" },
   { title: "Quantidade (m³)", key: "quantidade" },
   { title: "Operador", key: "operador" },
   { title: "Data e Hora", key: "data_hora_saida" },
@@ -74,5 +79,13 @@ const formatDateTime = (isoString) => {
     console.error("Erro ao formatar data:", error);
     return isoString; // Retorna a string original em caso de erro
   }
+};
+
+const formatCurrency = (value) => {
+  if (value == null) return "N/A";
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
 };
 </script>
