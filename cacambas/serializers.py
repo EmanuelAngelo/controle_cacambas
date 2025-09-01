@@ -66,10 +66,51 @@ class MovimentacaoCreateSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # Campo de senha para escrita, não será retornado em requisições GET
+    password = serializers.CharField(
+        write_only=True, 
+        required=False,  # Não obrigatório em atualizações (PATCH)
+        style={'input_type': 'password'}
+    )
+
     class Meta:
         model = User
-        # Adicione 'is_staff' à lista de campos
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'password']
+        # Garante que o email seja enviado na criação, se desejado
+        extra_kwargs = {
+            'email': {'required': True, 'allow_blank': False}
+        }
+
+    def create(self, validated_data):
+        """
+        Cria um novo usuário usando o método create_user para hashear a senha.
+        """
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
+            is_staff=validated_data.get('is_staff', False),
+            password=validated_data.get('password')
+        )
+        return user
+
+    def update(self, instance, validated_data):
+        """
+        Atualiza um usuário, tratando a senha de forma especial.
+        """
+        # Remove a senha do dicionário para ser tratada separadamente
+        password = validated_data.pop('password', None)
+        
+        # Atualiza os outros campos
+        instance = super().update(instance, validated_data)
+
+        # Se uma nova senha foi fornecida, atualiza e hasheia
+        if password:
+            instance.set_password(password)
+            instance.save()
+            
+        return instance
 
 class MovimentacaoStatusSerializer(serializers.ModelSerializer):
     class Meta:

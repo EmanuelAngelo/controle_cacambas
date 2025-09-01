@@ -7,6 +7,7 @@ import HomeView from "../views/HomeView.vue"; // Uma tela inicial padrão
 import VeiculosView from "../views/VeiculosView.vue"; // A tela de CRUD de veículos
 import ProdutosView from "@/views/ProdutosView.vue";
 import MovimentacoesView from "@/views/MovimentacoesView.vue";
+import UsuariosView from "@/views/UsuariosView.vue";
 
 const routes = [
   {
@@ -43,6 +44,11 @@ const routes = [
         path: "movimentacoes", // <-- Nova rota
         name: "Movimentacoes",
         component: MovimentacoesView,
+      },
+      {
+        path: "usuarios", // <-- Nova rota
+        name: "Usuarios",
+        component: UsuariosView,
       },
       //
       // SUAS FUTURAS ROTAS (Produtos, Movimentações, etc.) ENTRARÃO AQUI

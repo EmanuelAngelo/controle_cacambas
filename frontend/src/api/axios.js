@@ -3,6 +3,7 @@ import axios from "axios";
 // Cria uma instância customizada do Axios
 const apiClient = axios.create({
   // Define a URL base para todas as requisições da API
+  // baseURL: "http://127.0.0.1:8000/api",
   baseURL: "https://ruthusky.pythonanywhere.com/api",
 });
 

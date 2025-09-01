@@ -15,6 +15,8 @@ declare module 'vue' {
     ProdutosList: typeof import('./src/components/ProdutosList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UsuariosForm: typeof import('./src/components/UsuariosForm.vue')['default']
+    UsuariosList: typeof import('./src/components/UsuariosList.vue')['default']
     VeiculosForm: typeof import('./src/components/VeiculosForm.vue')['default']
     VeiculosList: typeof import('./src/components/VeiculosList.vue')['default']
   }

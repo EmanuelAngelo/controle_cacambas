@@ -52,6 +52,12 @@
             value="produtos"
             to="/produtos"
           ></v-list-item>
+          <v-list-item
+            v-if="isStaff"
+            prepend-icon="mdi-account-group"
+            title="Usuários"
+            to="/usuarios"
+          ></v-list-item>
         </v-list>
 
         <div>
@@ -115,6 +121,7 @@ const router = useRouter();
 // --- NOVAS VARIÁVEIS REATIVAS ---
 const userName = ref("Usuário"); // Valor padrão
 const showLogoutDialog = ref(false); // Controla a visibilidade do dialog
+const isStaff = computed(() => localStorage.getItem("isStaff") === "true");
 
 // onMounted é executado quando o componente é montado na tela
 onMounted(() => {

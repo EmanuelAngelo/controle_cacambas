@@ -169,12 +169,10 @@ class MovimentacaoViewSet(ModelViewSet):
         return Response({"id": mov.id, "status": mov.status})
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     """
-    ViewSet para listar os usuários (operadores).
-    Apenas leitura (GET).
+    ViewSet para listar, criar, editar e excluir usuários (operadores).
     """
     queryset = User.objects.all().order_by('username')
     serializer_class = UserSerializer
-    # Apenas usuários autenticados que são administradores podem ver a lista
     permission_classes = [permissions.IsAdminUser]
