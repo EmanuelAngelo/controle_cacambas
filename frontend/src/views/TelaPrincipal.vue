@@ -58,19 +58,19 @@
             title="Usuários"
             to="/usuarios"
           ></v-list-item>
+          <v-list-item
+            prepend-icon="mdi-logout"
+            title="Sair"
+            value="sair"
+            color="red"
+            @click="showLogoutDialog = true"
+          ></v-list-item>
         </v-list>
 
-        <div>
+        <!-- <div>
           <v-divider></v-divider>
-          <v-list density="compact" nav>
-            <v-list-item
-              prepend-icon="mdi-logout"
-              title="Sair"
-              value="sair"
-              @click="showLogoutDialog = true"
-            ></v-list-item>
-          </v-list>
-        </div>
+          <v-list density="compact" nav> </v-list>
+        </div> -->
       </div>
     </v-navigation-drawer>
 
