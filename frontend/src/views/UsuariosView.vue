@@ -43,12 +43,18 @@ const dialog = ref(false);
 const deleteDialog = ref(false);
 const editedUser = ref({});
 const userToDelete = ref(null);
+// Adicione as variáveis para o dialog de erro, caso não as tenha
+const errorDialog = ref(false);
+const errorMessage = ref("");
 
+// --- PONTO 1: O OBJETO PADRÃO (LIMPO) ---
+// Este objeto define o estado inicial do formulário para um novo usuário.
 const defaultUser = {
   username: "",
   first_name: "",
   last_name: "",
   email: "",
+  password: "", // Importante ter o campo password vazio
   is_staff: false,
 };
 
@@ -60,7 +66,8 @@ const fetchUsers = async () => {
   loading.value = true;
   try {
     const response = await axios.get("/usuarios/");
-    users.value = response.data.results;
+    // Se o endpoint for paginado, use .results
+    users.value = response.data.results || response.data;
   } catch (error) {
     console.error("Erro ao buscar usuários:", error);
   } finally {
@@ -68,15 +75,22 @@ const fetchUsers = async () => {
   }
 };
 
+// --- PONTO 2: A LÓGICA CORRIGIDA PARA ABRIR O FORMULÁRIO ---
 const openForm = (user = null) => {
-  editedUser.value = user ? { ...user } : { ...defaultUser };
+  if (user) {
+    // Modo Edição: Copia os dados do usuário para o formulário
+    editedUser.value = { ...user };
+  } else {
+    // Modo Criação: Copia os dados do objeto padrão (vazio) para o formulário
+    editedUser.value = { ...defaultUser };
+  }
   dialog.value = true;
 };
 
 const saveUser = async (user) => {
   try {
     if (user.id) {
-      await axios.patch(`/usuarios/${user.id}/`, user); // PATCH é melhor para atualizações parciais
+      await axios.patch(`/usuarios/${user.id}/`, user);
     } else {
       await axios.post("/usuarios/", user);
     }
@@ -84,6 +98,11 @@ const saveUser = async (user) => {
     fetchUsers();
   } catch (error) {
     console.error("Erro ao salvar usuário:", error);
+    // Opcional: mostrar erro de validação do backend
+    if (error.response && error.response.status === 400) {
+      errorMessage.value = Object.values(error.response.data).join(" ");
+      errorDialog.value = true;
+    }
   }
 };
 
