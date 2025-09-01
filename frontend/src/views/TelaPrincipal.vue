@@ -62,7 +62,7 @@
             prepend-icon="mdi-logout"
             title="Sair"
             value="sair"
-            color="red"
+            style="background-color: brown"
             @click="showLogoutDialog = true"
           ></v-list-item>
         </v-list>
