@@ -126,5 +126,7 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:3000",
+    # --- VERSÃO CORRIGIDA PARA O VERCEL ---
+    "https://controle-cacambas.vercel.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
