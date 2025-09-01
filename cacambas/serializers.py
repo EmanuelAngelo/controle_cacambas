@@ -47,18 +47,21 @@ class MovimentacaoCreateSerializer(serializers.ModelSerializer):
     operador = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), required=False
     )
+    veiculo = serializers.PrimaryKeyRelatedField(queryset=Veiculo.objects.all())
 
     class Meta:
         model = Movimentacao
         fields = ['veiculo', 'produto', 'quantidade', 'operador', 'valor_entrega']
 
     def validate(self, data):
-        veiculo = data["veiculo"]
-        qtd = data.get("quantidade")
-        if qtd is None:
-            data["quantidade"] = veiculo.capacidade
-        if data["quantidade"] <= 0:
-            raise serializers.ValidationError({"quantidade": "Quantidade deve ser positiva."})
+        veiculo = data.get('veiculo')
+        quantidade = data.get('quantidade')
+        if veiculo and quantidade:
+            if quantidade > veiculo.capacidade:
+                # Se a quantidade for maior, levanta um erro de validação
+                raise serializers.ValidationError(
+                    f"A quantidade informada ({quantidade}m³) excede a capacidade do veículo '{veiculo.placa}' ({veiculo.capacidade}m³)."
+                )
         return data
 
 
