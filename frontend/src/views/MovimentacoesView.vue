@@ -39,7 +39,6 @@
             :items="statusOptions"
             label="Novo Status"
             variant="outlined"
-            density="compact"
           ></v-select>
         </v-card-text>
         <v-card-actions>
@@ -65,6 +64,28 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="errorDialog" persistent max-width="500px">
+      <v-card>
+        <v-card-title class="text-h5 bg-red-darken-2">
+          <v-icon start icon="mdi-alert-circle-outline"></v-icon>
+          Erro de Validação
+        </v-card-title>
+        <v-card-text class="py-4 text-body-1">
+          {{ errorMessage }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="blue-darken-1"
+            variant="elevated"
+            @click="errorDialog = false"
+          >
+            Entendi
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -74,7 +95,6 @@ import axios from "@/api/axios";
 import MovimentacoesList from "@/components/MovimentacoesList.vue";
 import MovimentacoesForm from "@/components/MovimentacoesForm.vue";
 
-// --- Variáveis reativas do componente ---
 const movimentacoes = ref([]);
 const loading = ref(false);
 const createDialog = ref(false);
@@ -82,6 +102,10 @@ const editDialog = ref(false);
 const deleteDialog = ref(false);
 const movimentacaoToEdit = ref({});
 const movimentacaoToDelete = ref(null);
+
+// --- Variáveis para o dialog de erro ---
+const errorDialog = ref(false);
+const errorMessage = ref("");
 
 const statusOptions = [
   "A ENTREGAR",
@@ -91,7 +115,6 @@ const statusOptions = [
   "CANCELADO",
 ];
 
-// --- Funções de ciclo de vida e API ---
 onMounted(() => {
   fetchMovimentacoes();
 });
@@ -112,7 +135,6 @@ const fetchMovimentacoes = async () => {
 const openCreateForm = () => {
   createDialog.value = true;
 };
-
 const openEditForm = (movimentacao) => {
   movimentacaoToEdit.value = { ...movimentacao };
   editDialog.value = true;
@@ -124,7 +146,25 @@ const saveMovimentacao = async (movimentacao) => {
     createDialog.value = false;
     fetchMovimentacoes();
   } catch (error) {
-    console.error("Erro ao registrar saída:", error);
+    // --- LÓGICA DE TRATAMENTO DE ERRO ATUALIZADA ---
+    if (error.response && error.response.status === 400) {
+      // Se o erro for 400 (Bad Request), provavelmente é nossa validação
+      const errorData = error.response.data;
+      // O DRF pode enviar erros de várias formas, vamos tratar as mais comuns
+      if (typeof errorData === "string") {
+        errorMessage.value = errorData;
+      } else if (Array.isArray(errorData)) {
+        errorMessage.value = errorData.join(" ");
+      } else {
+        // Pega a mensagem de erro do campo "non_field_errors" ou a primeira que encontrar
+        errorMessage.value =
+          errorData.non_field_errors?.[0] || Object.values(errorData)[0];
+      }
+      errorDialog.value = true;
+    } else {
+      console.error("Erro ao registrar saída:", error);
+      // Você pode adicionar um dialog de erro genérico aqui se quiser
+    }
   }
 };
 
