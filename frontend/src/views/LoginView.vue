@@ -132,6 +132,8 @@ const handleLogin = async () => {
 
 <style scoped>
 .bg-grey-lighten-4 {
-  background-image: url("https://www.ssab.com/_next/image?url=https%3A%2F%2Fwww.ssab.com%2F%2F-%2Fmedia%2Fimages%2Fhardox%2Fhimb-new%2F1920x1080-bucket-top.jpg%3Fm%3D20210407181724&w=3840&q=75") !important;
+  background: url("https://www.ssab.com/_next/image?url=https%3A%2F%2Fwww.ssab.com%2F%2F-%2Fmedia%2Fimages%2Fhardox%2Fhimb-new%2F1920x1080-bucket-top.jpg%3Fm%3D20210407181724&w=3840&q=75")
+    no-repeat center center fixed !important;
+  background-size: cover;
 }
 </style>
