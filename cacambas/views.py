@@ -43,6 +43,18 @@ class ProdutoViewSet(ModelViewSet):
         if self.request.query_params.get("incluir_inativos") != "1":
             qs = qs.filter(esta_ativo=True)
         return qs
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProtectedError:
+            # Mensagem customizada que será enviada ao frontend
+            error_message = {
+                "detail": "Este produto não pode ser excluído, pois faz parte de uma ou mais movimentações. Se não deseja mais usá-lo, você pode editá-lo e marcá-lo como 'Inativo'."
+            }
+            return Response(error_message, status=status.HTTP_409_CONFLICT)
 
     @action(detail=True, methods=["patch"], permission_classes=[IsAdmin])
     def toggle(self, request, pk=None):

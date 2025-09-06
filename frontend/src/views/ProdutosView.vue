@@ -65,6 +65,27 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="errorDialog" persistent max-width="500px">
+      <v-card>
+        <v-card-title class="text-h5 bg-red-darken-2">
+          <v-icon start icon="mdi-alert-circle-outline"></v-icon>
+          Operação Bloqueada
+        </v-card-title>
+        <v-card-text class="py-4 text-body-1">
+          {{ errorMessage }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="blue-darken-1"
+            variant="elevated"
+            @click="errorDialog = false"
+          >
+            Entendi
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
