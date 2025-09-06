@@ -29,16 +29,10 @@ class MovimentacaoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movimentacao
         fields = [
-            "id",
-            "veiculo",
-            "numero_interno",
-            "produto",
-            "quantidade",
-            "status",
-            "operador",
-            "valor_entrega",
-            "data_hora_saida",
+            'id', 'veiculo', 'produto', 'operador', 'quantidade', 'data_hora_saida', 'numero_interno',
+            'status', 'valor_entrega', 'nome_destinatario', 'telefone_destinatario', 'endereco_entrega'
         ]
+
 
 
 class MovimentacaoCreateSerializer(serializers.ModelSerializer):
@@ -51,7 +45,10 @@ class MovimentacaoCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Movimentacao
-        fields = ['veiculo', 'produto', 'quantidade', 'operador', 'valor_entrega']
+        fields = [
+            'veiculo', 'produto', 'quantidade', 'operador', 
+            'nome_destinatario', 'telefone_destinatario', 'endereco_entrega'
+        ]
 
     def validate(self, data):
         veiculo = data.get('veiculo')

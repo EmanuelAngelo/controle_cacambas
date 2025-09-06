@@ -68,6 +68,35 @@
                 :rules="[rules.required]"
               ></v-text-field>
             </v-col>
+            <v-divider class="my-4">Destinatário</v-divider>
+
+            <v-col cols="12">
+              <v-text-field
+                v-model="editedMovimentacao.nome_destinatario"
+                label="Nome do Destinatário (Opcional)"
+                variant="outlined"
+                density="compact"
+              ></v-text-field>
+            </v-col>
+
+            <v-col cols="12">
+              <v-text-field
+                v-model="editedMovimentacao.telefone_destinatario"
+                label="Telefone do Destinatário (Opcional)"
+                variant="outlined"
+                density="compact"
+              ></v-text-field>
+            </v-col>
+
+            <v-col cols="12">
+              <v-textarea
+                v-model="editedMovimentacao.endereco_entrega"
+                label="Endereço de Entrega (Opcional)"
+                variant="outlined"
+                density="compact"
+                rows="3"
+              ></v-textarea>
+            </v-col>
           </v-row>
         </v-container>
       </v-form>

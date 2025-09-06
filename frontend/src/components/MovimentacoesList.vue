@@ -6,6 +6,7 @@
     class="elevation-1"
     item-value="id"
     density="compact"
+    show-expand
   >
     <template v-slot:loading>
       <v-skeleton-loader type="table-row@5"></v-skeleton-loader>
@@ -25,11 +26,39 @@
       <span>{{ formatDateTime(item.data_hora_saida) }}</span>
     </template>
 
+    <template v-slot:expanded-row="{ columns, item }">
+      <tr>
+        <td :colspan="columns.length">
+          <div class="pa-4 text-body-2 bg-grey-lighten-4">
+            <p v-if="item.nome_destinatario">
+              <strong>Destinatário:</strong> {{ item.nome_destinatario }}
+            </p>
+            <p v-if="item.telefone_destinatario">
+              <strong>Telefone:</strong> {{ item.telefone_destinatario }}
+            </p>
+            <p v-if="item.endereco_entrega">
+              <strong>Endereço:</strong> {{ item.endereco_entrega }}
+            </p>
+            <p
+              v-if="
+                !item.nome_destinatario &&
+                !item.telefone_destinatario &&
+                !item.endereco_entrega
+              "
+            >
+              Nenhuma informação de entrega foi registrada para esta
+              movimentação.
+            </p>
+          </div>
+        </td>
+      </tr>
+    </template>
+
     <template v-slot:item.actions="{ item }">
-      <v-icon size="small" class="me-2" @click="$emit('edit', item)">
-        mdi-pencil
-      </v-icon>
-      <v-icon size="small" @click="$emit('delete', item)"> mdi-cancel </v-icon>
+      <v-icon size="small" class="me-2" @click="$emit('edit', item)"
+        >mdi-pencil</v-icon
+      >
+      <v-icon size="small" @click="$emit('delete', item)">mdi-delete</v-icon>
     </template>
   </v-data-table>
 </template>
@@ -53,6 +82,7 @@ const headers = [
   { title: "Veículo", key: "veiculo" },
   { title: "Produto", key: "produto" },
   { title: "Valor Entrega", key: "valor_entrega" },
+  { title: "Destinatário", key: "nome_destinatario" },
   { title: "Quantidade (m³)", key: "quantidade" },
   { title: "Operador", key: "operador" },
   { title: "Data e Hora", key: "data_hora_saida" },

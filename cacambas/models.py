@@ -45,11 +45,13 @@ class Movimentacao(models.Model):
 
     veiculo = models.ForeignKey(Veiculo, on_delete=models.PROTECT, related_name='movimentacoes', verbose_name="Veículo")
     produto = models.ForeignKey(Produto, on_delete=models.PROTECT, related_name='movimentacoes', verbose_name="Produto")
-    valor_entrega = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor da Entrega (R$)")
+    valor_entrega = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     operador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='movimentacoes', verbose_name="Operador")
     quantidade = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Quantidade (m³)")
     data_hora_saida = models.DateTimeField(auto_now_add=True, verbose_name="Data e Hora da Saída")
-    
+    nome_destinatario = models.CharField(max_length=255, blank=True, null=True, verbose_name="Nome do Destinatário")
+    telefone_destinatario = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefone do Destinatário")
+    endereco_entrega = models.TextField(blank=True, null=True, verbose_name="Endereço de Entrega")
     # --- MUDANÇA AQUI: NOVO STATUS PADRÃO ---
     status = models.CharField(
         max_length=20, 
